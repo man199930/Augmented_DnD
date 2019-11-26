@@ -1,0 +1,28 @@
+doctype html
+html
+    head
+        title DnD Map Creator
+        meta(charset="utf-8")
+        style
+            include styles.css
+        script
+          include script.js
+    body
+        header
+        nav
+        main
+          div(id="mapCreatorSizes")
+            h1 DnD Map Creator
+            p tileWidthPixel
+            input(type="text" id="tileWidthPixel")
+            p tileHeightPixel
+            input(type="text" id="tileHeightPixel")
+            p nbTileWidth
+            input(type="text" id="nbTileWidth")
+            p nbTileHeight
+            input(type="text" id="nbTileHeight")
+            input(type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()")
+            input(type="file" onchange="loadMap()" id="mapFile")
+            br
+          div(id="mapCreatorItems")
+          canvas(id="game" width="1000" height="600")
