@@ -1,11 +1,67 @@
-var tileWidthPixel;
-var tileHeightPixel;
+var tileDimensionPixel;
 var nbTileWidth;
 var nbTileHeight;
 var ctx= null;
 var gameMap=[];
 
 
+window.addEventListener("load", ()=>{
+    const canvas= document.getElementById("game");
+    ctx=canvas.getContext("2d");
+
+    var changementTextureMap=false;
+
+    function startPositionChangementTextureMap(e){
+        changementTextureMap=true;
+        //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
+        draw(e);
+    }
+    function endPositionChangementTextureMap(){
+        changementTextureMap=false;
+        ctx.beginPath();
+    }
+    function startChangemenfPasEncoreDansCanvas(){
+        changementTextureMap=true;
+    }
+    function endChangemenfPasEncoreDansCanvas(){
+        changementTextureMap=false;
+    }
+    function tuileSelectionne(e){
+        if(!changementTextureMap){
+            return;
+        }
+    }
+    function draw(e){
+        if(!changementTextureMap){
+            return;
+        }
+        //holy grail pour Canvas
+        var BB=canvas.getBoundingClientRect();
+        var tx=e.clientX-BB.left;
+        var ty=e.clientY-BB.top;
+        //fin du holy grail
+        
+        numTuile=scanMap(tx,ty);
+        gameMap[numTuile]=6;
+        drawGame();
+    }
+    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
+    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
+    canvas.addEventListener("mousemove", draw);
+    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
+    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
+
+});
+
+function scanMap(tx, ty){
+    var tuilePositionX=tx/tileDimensionPixel;
+    var tuilePositionY=ty/tileDimensionPixel;
+    var tuileXFloor=Math.floor(tuilePositionX);
+    var tuileYFloor=Math.floor(tuilePositionY);
+    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
+    console.log(numTuile);
+    return numTuile;
+}
 
 function loadMap(){
     var file = document.getElementById("mapFile").files[0];
@@ -14,12 +70,11 @@ function loadMap(){
         reader.readAsText(file, "UTF-8");
         reader.onload = function (evt) {
             gameMap=JSON.parse(evt.target.result).map;
-            tileWidthPixel=JSON.parse(evt.target.result).tileWidthPixel;
-            tileHeightPixel=JSON.parse(evt.target.result).tileHeightPixel;
+            tileDimensionPixel=JSON.parse(evt.target.result).tileDimensionPixel;
             nbTileWidth=JSON.parse(evt.target.result).nbTileWidth;
             nbTileHeight=JSON.parse(evt.target.result).nbTileHeight;
-            ctx.canvas.width=nbTileWidth*tileWidthPixel;
-            ctx.canvas.height=nbTileHeight*tileHeightPixel;
+            ctx.canvas.width=nbTileWidth*tileDimensionPixel;
+            ctx.canvas.height=nbTileHeight*tileDimensionPixel;
             requestAnimationFrame(drawGame);
         };
         reader.onerror = function (evt) {
@@ -29,13 +84,12 @@ function loadMap(){
 }
 
 function creerMap(){
-    tileWidthPixel=document.getElementById("tileWidthPixel").value;
-    tileHeightPixel=document.getElementById("tileHeightPixel").value;
+    tileDimensionPixel=document.getElementById("tileDimensionPixel").value;
     nbTileWidth=document.getElementById("nbTileWidth").value;
     nbTileHeight=document.getElementById("nbTileHeight").value;
     ctx=document.getElementById('game').getContext('2d');
-    ctx.canvas.width=nbTileWidth*tileWidthPixel;
-    ctx.canvas.height=nbTileHeight*tileHeightPixel;
+    ctx.canvas.width=nbTileWidth*tileDimensionPixel;
+    ctx.canvas.height=nbTileHeight*tileDimensionPixel;
     for(var y=0; y<nbTileHeight;y++){
         for(var x=0;x<nbTileWidth;x++){
             gameMap[(y*nbTileWidth)+x]=1;
@@ -45,11 +99,7 @@ function creerMap(){
     requestAnimationFrame(drawGame);
 }
 
-window.onload=function(){
-    ctx=document.getElementById('game').getContext('2d');
-    requestAnimationFrame(drawGame);
-    ctx.font='bold 10pt sans-serif';
-};
+
 
 function drawGame(){
     if(ctx==null){return;}
@@ -85,12 +135,11 @@ function drawGame(){
                 ctx.strokeStyle="#000000";
                 break;
             }
-            ctx.fillRect(x*tileWidthPixel, y*tileHeightPixel, tileWidthPixel, tileHeightPixel);
+            ctx.fillRect(x*tileDimensionPixel, y*tileDimensionPixel, tileDimensionPixel, tileDimensionPixel);
             ctx.globalAlpha=0.2;
-            ctx.strokeRect(x*tileWidthPixel, y*tileHeightPixel, tileWidthPixel, tileHeightPixel);
+            ctx.strokeRect(x*tileDimensionPixel, y*tileDimensionPixel, tileDimensionPixel, tileDimensionPixel);
             ctx.globalAlpha=1;
         }
     }
     ctx.fillStyle="#ff0000";
-    requestAnimationFrame(drawGame);
 }

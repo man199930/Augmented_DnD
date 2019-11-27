@@ -242,8 +242,7 @@
     0,
     4
   ],
-  "tileWidthPixel": 100,
-  "tileHeightPixel": 100,
+  "tileDimensionPixel": 100,
   "nbTileWidth": 20,
   "nbTileHeight": 12
 }
