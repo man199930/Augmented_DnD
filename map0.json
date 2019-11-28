@@ -183,9 +183,9 @@
     0,
     0,
     1,
+    1,
     6,
-    6,
-    6,
+    1,
     1,
     0,
     1,
@@ -203,9 +203,9 @@
     0,
     0,
     1,
-    6,
-    6,
-    6,
+    1,
+    1,
+    1,
     1,
     0,
     1,
@@ -242,7 +242,7 @@
     0,
     4
   ],
-  "tileDimensionPixel": 100,
+  "tileDimensionPixel": 50,
   "nbTileWidth": 20,
   "nbTileHeight": 12
 }

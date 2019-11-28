@@ -1,84 +1,127 @@
-<!DOCTYPE html><html><head><title>DnD Map Creator</title><meta charset="utf-8"><style>h1{
+<!DOCTYPE html><html><head><title>DnD Map Creator</title><meta charset="utf-8"><style>body{
+    background-color: #cc5252;
+}
+h1{
     color: red;
 }
 
 canvas{
-    border: 2px solid black;
-    display: inline-block;
-}
-input{
-    display: block;
-}
-#mapCreatorSizes{
     display: inline;
 }
+input{
+
+}
+h3{
+    display: inline;
+}
+#mapCreator{
+    width: 500px;
+    float: left;
+    display: inline-block;
+}
+#mapDimensions{
+    
+}
 #mapCreatorItems{
-     
+    display: block;
+}
+#map{
+
+}
+#wall{
+    background-color: #999999;
+}
+#floor{
+    background-color: #eeeeee;
+}
+#goblin{
+    background-color: #00ff00;
+}
+#hero1{
+    background-color: #ff5622;
+}
+#hero2{
+    background-color: #ffc524;
+}
+#hero3{
+    background-color: #ff33d3;
+}
+#hero4{
+    background-color: #823528;
+}
+#inventaire{
+    border: 2px solid blue;
+    height: 100%;
+}
+#mySidebar{
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    background-color: #e62e2e;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+.closebtn {
+    position: relative;
+    top: 10px;
+    left: 410px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+}
+.openbtn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+
 }
 </style><script>var tileDimensionPixel;
 var nbTileWidth;
 var nbTileHeight;
 var ctx= null;
 var gameMap=[];
+var canvas;
+var changementTextureMap=false;
+var btnWall;
+var btnFloor;
+var btnGoblin;
+var btnHero1;
+var btnHero2;
+var btnHero3;
+var btnHero4;
+var couleur;
 
 
-window.addEventListener("load", ()=>{
-    const canvas= document.getElementById("game");
-    ctx=canvas.getContext("2d");
 
-    var changementTextureMap=false;
 
-    function startPositionChangementTextureMap(e){
-        changementTextureMap=true;
-        //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
-        draw(e);
-    }
-    function endPositionChangementTextureMap(){
-        changementTextureMap=false;
-        ctx.beginPath();
-    }
-    function startChangemenfPasEncoreDansCanvas(){
-        changementTextureMap=true;
-    }
-    function endChangemenfPasEncoreDansCanvas(){
-        changementTextureMap=false;
-    }
-    function tuileSelectionne(e){
-        if(!changementTextureMap){
-            return;
+function creerMap(){
+    tileDimensionPixel=document.getElementById("tileDimensionPixel").value;
+    nbTileWidth=document.getElementById("nbTileWidth").value;
+    nbTileHeight=document.getElementById("nbTileHeight").value;
+    ctx=document.getElementById('game').getContext('2d');
+    ctx.canvas.width=nbTileWidth*tileDimensionPixel;
+    ctx.canvas.height=nbTileHeight*tileDimensionPixel;
+    for(var y=0; y<nbTileHeight;y++){
+        for(var x=0;x<nbTileWidth;x++){
+            gameMap[(y*nbTileWidth)+x]=1;
         }
-    }
-    function draw(e){
-        if(!changementTextureMap){
-            return;
-        }
-        //holy grail pour Canvas
-        var BB=canvas.getBoundingClientRect();
-        var tx=e.clientX-BB.left;
-        var ty=e.clientY-BB.top;
-        //fin du holy grail
-        
-        numTuile=scanMap(tx,ty);
-        gameMap[numTuile]=6;
-        drawGame();
-    }
-    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
-    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
-    canvas.addEventListener("mousemove", draw);
-    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
-    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
 
-});
-
-function scanMap(tx, ty){
-    var tuilePositionX=tx/tileDimensionPixel;
-    var tuilePositionY=ty/tileDimensionPixel;
-    var tuileXFloor=Math.floor(tuilePositionX);
-    var tuileYFloor=Math.floor(tuilePositionY);
-    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
-    console.log(numTuile);
-    return numTuile;
+    }
+    requestAnimationFrame(drawGame);
 }
+
 
 function loadMap(){
     var file = document.getElementById("mapFile").files[0];
@@ -100,23 +143,15 @@ function loadMap(){
     }
 }
 
-function creerMap(){
-    tileDimensionPixel=document.getElementById("tileDimensionPixel").value;
-    nbTileWidth=document.getElementById("nbTileWidth").value;
-    nbTileHeight=document.getElementById("nbTileHeight").value;
-    ctx=document.getElementById('game').getContext('2d');
-    ctx.canvas.width=nbTileWidth*tileDimensionPixel;
-    ctx.canvas.height=nbTileHeight*tileDimensionPixel;
-    for(var y=0; y<nbTileHeight;y++){
-        for(var x=0;x<nbTileWidth;x++){
-            gameMap[(y*nbTileWidth)+x]=1;
-        }
-
-    }
-    requestAnimationFrame(drawGame);
+function scanMap(tx, ty){
+    var tuilePositionX=(tx-5)/tileDimensionPixel;
+    var tuilePositionY=ty/tileDimensionPixel;
+    var tuileXFloor=Math.floor(tuilePositionX);
+    var tuileYFloor=Math.floor(tuilePositionY);
+    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
+    console.log(numTuile);
+    return numTuile;
 }
-
-
 
 function drawGame(){
     if(ctx==null){return;}
@@ -147,7 +182,7 @@ function drawGame(){
                 ctx.fillStyle="#ff33d3";
                 ctx.strokeStyle="#000000";
                 break;
-            case 6://objets
+            case 6://hero 4
                 ctx.fillStyle="#823528";
                 ctx.strokeStyle="#000000";
                 break;
@@ -160,4 +195,97 @@ function drawGame(){
     }
     ctx.fillStyle="#ff0000";
 }
-</script></head><body><header></header><nav></nav><main><div id="mapCreatorSizes"><h1>DnD Map Creator</h1><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"><input type="file" onchange="loadMap()" id="mapFile"><br></div><div id="mapCreatorItems"></div><canvas id="game" width="1000" height="600"></canvas></main></body></html>
+
+window.addEventListener("load", ()=>{
+    canvas= document.getElementById("game");
+    ctx=canvas.getContext("2d");
+    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
+    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
+    canvas.addEventListener("mousemove", draw);
+    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
+    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
+    btnWall=document.getElementById("wall");
+    btnGoblin=document.getElementById("goblin");
+    var nomWall=document.getElementById("wall").name;
+    btnWall.addEventListener("click", setChoix(nomWall));
+    var nomGoblin=document.getElementById("goblin").name;
+    btnWall.addEventListener("click", setChoix(nomGoblin));
+    
+});
+
+function startPositionChangementTextureMap(e){
+    changementTextureMap=true;
+    //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
+    draw(e);
+}
+function endPositionChangementTextureMap(){
+    changementTextureMap=false;
+    ctx.beginPath();
+}
+function startChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=true;
+}
+function endChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=false;
+}
+function tuileSelectionne(e){
+    if(!changementTextureMap){
+        return;
+    }
+}
+function draw(e){
+    if(!changementTextureMap){
+        return;
+    }
+    //holy grail pour Canvas
+    var BB=canvas.getBoundingClientRect();
+    var tx=e.clientX-BB.left;
+    var ty=e.clientY-BB.top;
+    //fin du holy grail
+    numTuile=scanMap(tx,ty);
+    gameMap[numTuile]=couleur;
+    drawGame();
+}
+
+function setChoix(choix){
+    switch(choix){
+    case 0://mur
+        couleur=0;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 1://marchable
+        couleur=1;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 2://goblin
+        couleur=2;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 3://hero 1
+        couleur=3;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 4://hero 2
+        couleur=4;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 5://hero 3
+        couleur=5;
+        ctx.strokeStyle="#29fdff";
+        break;
+    case 6://hero 4
+        couleur=6;
+        ctx.strokeStyle="#29fdff";
+        break;
+    }
+}
+function openNav() {
+    document.getElementById("mySidebar").style.width = "500px";
+    document.getElementById("pourSidebar").style.marginRight = "500px";
+}
+
+function closeNav() {
+    document.getElementById("mySidebar").style.width = "0";
+    document.getElementById("pourSidebar").style.marginRight= "0";
+}
+</script></head><body><header></header><nav></nav><main><button class="openbtn" onClick="openNav()">Open</button><div class="sidebar" id="mySidebar"><button class="closebtn" onclick="closeNav()">Close</button><h2>Textures</h2><div id="mapCreator"><div id="mapLoader"><h2>0.Load a map (if you want to modify an existing one)</h2><input type="file" onchange="loadMap()" id="mapFile"></div><div id="mapDimensions"><h2>1.Map Dimensions</h2><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"></div><br><div id="mapCreatorItems"><h2>2.Modify it</h2><h3>Wall</h3><input type="button" id="wall"><h3>Floor</h3><input type="button" id="floor" onClick="setChoix('1')"><h3>Goblin</h3><input type="button" id="goblin" name="2" onClick="setChoix('2')"><h3>Hero 1</h3><input type="button" id="hero1" onClick="setChoix('3')"><h3>Hero 2</h3><input type="button" id="hero2" onClick="setChoix('4')"><h3>Hero 3</h3><input type="button" id="hero3" onClick="setChoix('5')"><h3>Hero 4</h3><input type="button" id="hero4" onClick="setChoix('6')"></div><canvas id="inventaire" width="500px" height="100%"></canvas></div></div><h1>DnD Map Creator</h1><div id="map"><canvas id="game" width="1000" height="600"></canvas></div></main></body></html>

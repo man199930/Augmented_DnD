@@ -1,17 +1,89 @@
+body{
+    background-color: #cc5252;
+}
 h1{
     color: red;
 }
 
 canvas{
-    border: 2px solid black;
-    display: inline-block;
-}
-input{
-    display: block;
-}
-#mapCreatorSizes{
     display: inline;
 }
+input{
+
+}
+h3{
+    display: inline;
+}
+#mapCreator{
+    width: 500px;
+    float: left;
+    display: inline-block;
+}
+#mapDimensions{
+    
+}
 #mapCreatorItems{
-     
+    display: block;
+}
+#map{
+
+}
+#wall{
+    background-color: #999999;
+}
+#floor{
+    background-color: #eeeeee;
+}
+#goblin{
+    background-color: #00ff00;
+}
+#hero1{
+    background-color: #ff5622;
+}
+#hero2{
+    background-color: #ffc524;
+}
+#hero3{
+    background-color: #ff33d3;
+}
+#hero4{
+    background-color: #823528;
+}
+#inventaire{
+    border: 2px solid blue;
+    height: 100%;
+}
+#mySidebar{
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    background-color: #e62e2e;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+.closebtn {
+    position: relative;
+    top: 10px;
+    left: 410px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+}
+.openbtn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #111;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+
 }
