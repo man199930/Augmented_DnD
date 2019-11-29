@@ -1,32 +1,23 @@
 body{
-    background-color: #cc5252;
+    background-color: #0B3C5D;
 }
 h1{
-    color: red;
+    color: #D9B310;
 }
 
 canvas{
     display: inline;
 }
-input{
-
-}
 h3{
     display: inline;
 }
 #mapCreator{
-    width: 500px;
+    width: 600px;
     float: left;
     display: inline-block;
 }
-#mapDimensions{
-    
-}
 #mapCreatorItems{
     display: block;
-}
-#map{
-
 }
 #wall{
     background-color: #999999;
@@ -49,9 +40,15 @@ h3{
 #hero4{
     background-color: #823528;
 }
+#createOrLoad{
+    display: inline-block;
+}
 #inventaire{
     border: 2px solid blue;
     height: 100%;
+}
+#createOrLoad, #textures{
+    text-align: center;
 }
 #mySidebar{
     height: 100%;
@@ -60,30 +57,52 @@ h3{
     z-index: 1;
     top: 0;
     right: 0;
-    background-color: #e62e2e;
+    background-color: #328CC1;
     overflow-x: hidden;
     transition: 0.5s;
 }
-.closebtn {
-    position: relative;
-    top: 10px;
-    left: 410px;
-    font-size: 20px;
-    cursor: pointer;
-    background-color: #111;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-}
 .openbtn {
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 0px;
+    right: 0px;
     font-size: 20px;
     cursor: pointer;
-    background-color: #111;
+    background-color: #1D2731;
     color: white;
     padding: 10px 15px;
     border: none;
-
+    height: 60px;
+    width: 200px;
+}
+.openbtn:hover{
+    border-bottom: 2px solid #D9B310;
+}
+.tab {
+    overflow-x: hidden;
+    width: 600px;
+    height: 70px;
+    background-color: #1D2731;
+}
+.tab button {
+    color:#ffffff;
+    background-color:#1D2731;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    height: 60px;
+    font-size: 20px;
+    width: 200px;
+}
+.tab button:hover {
+    border-bottom: 2px solid #D9B310;
+}
+.tab button.active {
+    background-color: #D9B310;
+}
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
 }

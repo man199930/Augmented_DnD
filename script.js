@@ -1,8 +1,8 @@
 var tileDimensionPixel;
 var nbTileWidth;
 var nbTileHeight;
-var ctx= null;
-var gameMap=[];
+var ctx = null;
+var gameMap = [];
 var canvas;
 var changementTextureMap=false;
 var btnWall;
@@ -108,6 +108,7 @@ function drawGame(){
 }
 
 window.addEventListener("load", ()=>{
+    document.getElementById("defaultOpen").click();
     canvas= document.getElementById("game");
     ctx=canvas.getContext("2d");
     canvas.addEventListener("mousedown", startPositionChangementTextureMap);
@@ -115,17 +116,10 @@ window.addEventListener("load", ()=>{
     canvas.addEventListener("mousemove", draw);
     document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
     document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
-    btnWall=document.getElementById("wall");
-    btnGoblin=document.getElementById("goblin");
-    var nomWall=document.getElementById("wall").name;
-    btnWall.addEventListener("click", setChoix(nomWall));
-    var nomGoblin=document.getElementById("goblin").name;
-    btnWall.addEventListener("click", setChoix(nomGoblin));
-    
 });
 
 function startPositionChangementTextureMap(e){
-    changementTextureMap=true;
+    changementTextureMap = true;
     //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
     draw(e);
 }
@@ -154,7 +148,7 @@ function draw(e){
     var ty=e.clientY-BB.top;
     //fin du holy grail
     numTuile=scanMap(tx,ty);
-    gameMap[numTuile]=couleur;
+    gameMap[numTuile]=6;
     drawGame();
 }
 
@@ -191,11 +185,29 @@ function setChoix(choix){
     }
 }
 function openNav() {
-    document.getElementById("mySidebar").style.width = "500px";
-    document.getElementById("pourSidebar").style.marginRight = "500px";
+    document.getElementById("mySidebar").style.width = "600px";
 }
 
 function closeNav() {
     document.getElementById("mySidebar").style.width = "0";
-    document.getElementById("pourSidebar").style.marginRight= "0";
 }
+function openTab(evt, cityName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+} 

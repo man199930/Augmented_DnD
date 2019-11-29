@@ -1,32 +1,23 @@
-<!DOCTYPE html><html><head><title>DnD Map Creator</title><meta charset="utf-8"><style>body{
-    background-color: #cc5252;
+<!DOCTYPE html><html lang="fr-ca"><head><title>DnD Map Creator</title><meta charset="utf-8"><style>body{
+    background-color: #0B3C5D;
 }
 h1{
-    color: red;
+    color: #D9B310;
 }
 
 canvas{
     display: inline;
 }
-input{
-
-}
 h3{
     display: inline;
 }
 #mapCreator{
-    width: 500px;
+    width: 600px;
     float: left;
     display: inline-block;
 }
-#mapDimensions{
-    
-}
 #mapCreatorItems{
     display: block;
-}
-#map{
-
 }
 #wall{
     background-color: #999999;
@@ -49,9 +40,15 @@ h3{
 #hero4{
     background-color: #823528;
 }
+#createOrLoad{
+    display: inline-block;
+}
 #inventaire{
     border: 2px solid blue;
     height: 100%;
+}
+#createOrLoad, #textures{
+    text-align: center;
 }
 #mySidebar{
     height: 100%;
@@ -60,38 +57,60 @@ h3{
     z-index: 1;
     top: 0;
     right: 0;
-    background-color: #e62e2e;
+    background-color: #328CC1;
     overflow-x: hidden;
     transition: 0.5s;
 }
-.closebtn {
-    position: relative;
-    top: 10px;
-    left: 410px;
-    font-size: 20px;
-    cursor: pointer;
-    background-color: #111;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-}
 .openbtn {
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 0px;
+    right: 0px;
     font-size: 20px;
     cursor: pointer;
-    background-color: #111;
+    background-color: #1D2731;
     color: white;
     padding: 10px 15px;
     border: none;
-
+    height: 60px;
+    width: 200px;
+}
+.openbtn:hover{
+    border-bottom: 2px solid #D9B310;
+}
+.tab {
+    overflow-x: hidden;
+    width: 600px;
+    height: 70px;
+    background-color: #1D2731;
+}
+.tab button {
+    color:#ffffff;
+    background-color:#1D2731;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    height: 60px;
+    font-size: 20px;
+    width: 200px;
+}
+.tab button:hover {
+    border-bottom: 2px solid #D9B310;
+}
+.tab button.active {
+    background-color: #D9B310;
+}
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
 }
 </style><script>var tileDimensionPixel;
 var nbTileWidth;
 var nbTileHeight;
-var ctx= null;
-var gameMap=[];
+var ctx = null;
+var gameMap = [];
 var canvas;
 var changementTextureMap=false;
 var btnWall;
@@ -197,6 +216,7 @@ function drawGame(){
 }
 
 window.addEventListener("load", ()=>{
+    document.getElementById("defaultOpen").click();
     canvas= document.getElementById("game");
     ctx=canvas.getContext("2d");
     canvas.addEventListener("mousedown", startPositionChangementTextureMap);
@@ -204,17 +224,10 @@ window.addEventListener("load", ()=>{
     canvas.addEventListener("mousemove", draw);
     document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
     document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
-    btnWall=document.getElementById("wall");
-    btnGoblin=document.getElementById("goblin");
-    var nomWall=document.getElementById("wall").name;
-    btnWall.addEventListener("click", setChoix(nomWall));
-    var nomGoblin=document.getElementById("goblin").name;
-    btnWall.addEventListener("click", setChoix(nomGoblin));
-    
 });
 
 function startPositionChangementTextureMap(e){
-    changementTextureMap=true;
+    changementTextureMap = true;
     //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
     draw(e);
 }
@@ -243,7 +256,7 @@ function draw(e){
     var ty=e.clientY-BB.top;
     //fin du holy grail
     numTuile=scanMap(tx,ty);
-    gameMap[numTuile]=couleur;
+    gameMap[numTuile]=6;
     drawGame();
 }
 
@@ -280,12 +293,30 @@ function setChoix(choix){
     }
 }
 function openNav() {
-    document.getElementById("mySidebar").style.width = "500px";
-    document.getElementById("pourSidebar").style.marginRight = "500px";
+    document.getElementById("mySidebar").style.width = "600px";
 }
 
 function closeNav() {
     document.getElementById("mySidebar").style.width = "0";
-    document.getElementById("pourSidebar").style.marginRight= "0";
 }
-</script></head><body><header></header><nav></nav><main><button class="openbtn" onClick="openNav()">Open</button><div class="sidebar" id="mySidebar"><button class="closebtn" onclick="closeNav()">Close</button><h2>Textures</h2><div id="mapCreator"><div id="mapLoader"><h2>0.Load a map (if you want to modify an existing one)</h2><input type="file" onchange="loadMap()" id="mapFile"></div><div id="mapDimensions"><h2>1.Map Dimensions</h2><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"></div><br><div id="mapCreatorItems"><h2>2.Modify it</h2><h3>Wall</h3><input type="button" id="wall"><h3>Floor</h3><input type="button" id="floor" onClick="setChoix('1')"><h3>Goblin</h3><input type="button" id="goblin" name="2" onClick="setChoix('2')"><h3>Hero 1</h3><input type="button" id="hero1" onClick="setChoix('3')"><h3>Hero 2</h3><input type="button" id="hero2" onClick="setChoix('4')"><h3>Hero 3</h3><input type="button" id="hero3" onClick="setChoix('5')"><h3>Hero 4</h3><input type="button" id="hero4" onClick="setChoix('6')"></div><canvas id="inventaire" width="500px" height="100%"></canvas></div></div><h1>DnD Map Creator</h1><div id="map"><canvas id="game" width="1000" height="600"></canvas></div></main></body></html>
+function openTab(evt, cityName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+} 
+</script></head><body><header></header><nav></nav><main><button class="openbtn" onClick="openNav()">Open</button><div class="sidebar" id="mySidebar"><div class="tab"><button class="tablinks" id="defaultOpen" onClick="openTab(event, 'createOrLoad')">Create or Load</button><button class="tablinks" onClick="openTab(event, 'textures')">Textures</button><button id="closeBtn" onclick="closeNav()">Close</button></div><div class="tabcontent" id="createOrLoad"><div id="mapCreator"><div id="mapLoader"><h2>0.Load a map (if you want to modify an existing one)</h2><input type="file" onchange="loadMap()" id="mapFile"></div><div id="mapDimensions"><h2>1.Map Dimensions</h2><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><br><br><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"></div><br></div></div><div class="tabcontent" id="textures"><div id="mapCreatorItems"><h2>2.Modify it</h2><canvas id="inventaire" width="500"></canvas></div></div></div><h1>DnD Map Creator</h1><div id="map"><canvas id="game" width="1000" height="600"></canvas></div></main></body></html>

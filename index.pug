@@ -1,5 +1,5 @@
 doctype html
-html
+html(lang="fr-ca")
     head
         title DnD Map Creator
         meta(charset="utf-8")
@@ -13,42 +13,32 @@ html
         main
           button(class="openbtn" onClick="openNav()") Open
           div(id="mySidebar" class="sidebar")
-            button(class="closebtn" onclick="closeNav()") Close
-            h2 Textures
-            
-            div(id="mapCreator")
-              div(id="mapLoader")
-                h2 0.Load a map (if you want to modify an existing one)
-                input(type="file" onchange="loadMap()" id="mapFile")
-              div(id="mapDimensions")
-                h2 1.Map Dimensions
-                p tileDimensionPixel
-                input(type="text" id="tileDimensionPixel")
-                p nbTileWidth
-                input(type="text" id="nbTileWidth")
-                p nbTileHeight
-                input(type="text" id="nbTileHeight")
-                input(type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()")
-              br
-
+            div(class="tab")
+              button(id="defaultOpen" class="tablinks" onClick="openTab(event, 'createOrLoad')") Create or Load
+              button(class="tablinks" onClick="openTab(event, 'textures')") Textures
+              button(id="closeBtn" onclick="closeNav()") Close
+            div(id="createOrLoad" class="tabcontent")
+              div(id="mapCreator")
+                div(id="mapLoader")
+                  h2 0.Load a map (if you want to modify an existing one)
+                  input(type="file" onchange="loadMap()" id="mapFile")
+                div(id="mapDimensions")
+                  h2 1.Map Dimensions
+                  p tileDimensionPixel
+                  input(type="text" id="tileDimensionPixel")
+                  p nbTileWidth
+                  input(type="text" id="nbTileWidth")
+                  p nbTileHeight
+                  input(type="text" id="nbTileHeight")
+                  br
+                  br
+                  input(type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()")
+                br
+            div(id="textures" class="tabcontent")
               div(id="mapCreatorItems")
                 h2 2.Modify it
-                h3 Wall
-                input(type="button" id="wall")
-                h3 Floor
-                input(type="button" id="floor" onClick="setChoix('1')")
-                h3 Goblin
-                input(type="button" id="goblin" name="2" onClick="setChoix('2')")
-                h3 Hero 1
-                input(type="button" id="hero1" onClick="setChoix('3')")
-                h3 Hero 2
-                input(type="button" id="hero2" onClick="setChoix('4')")
-                h3 Hero 3
-                input(type="button" id="hero3" onClick="setChoix('5')")
-                h3 Hero 4
-                input(type="button" id="hero4" onClick="setChoix('6')")
 
-              canvas(id="inventaire" width="500px" height="100%")
+                canvas(id="inventaire" width="500")
           h1 DnD Map Creator
           div(id="map")
             canvas(id="game" width="1000" height="600")
