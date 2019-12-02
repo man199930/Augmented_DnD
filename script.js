@@ -1,9 +1,15 @@
 var tileDimensionPixel;
 var nbTileWidth;
 var nbTileHeight;
+var tileInventaireDimensionPixel=100;
+var nbTileInventaireWidth=5;
+var nbTileInventaireHeight;
 var ctx = null;
+var ctxInventaire=null;
 var gameMap = [];
+var inventaireMap=[];
 var canvas;
+var canvasInventaire;
 var changementTextureMap=false;
 var btnWall;
 var btnFloor;
@@ -13,6 +19,8 @@ var btnHero2;
 var btnHero3;
 var btnHero4;
 var couleur;
+var self;
+var imgSource='textures/';
 
 
 
@@ -35,6 +43,7 @@ function creerMap(){
 
 
 function loadMap(){
+    ctx=canvas.getContext("2d");
     var file = document.getElementById("mapFile").files[0];
     if (file) {
         var reader = new FileReader();
@@ -53,17 +62,40 @@ function loadMap(){
         };
     }
 }
-
+function loadInventaire(){
+    ctx=canvasInventaire.getContext("2d");
+    var file= document.getElementById("inventaireFile").files[0];
+    if(file){
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            inventaireMap= JSON.parse(evt.target.result).inventaire;
+            nbTileInventaireHeight=Math.ceil(inventaireMap.length/nbTileInventaireWidth);
+            ctx.canvas.width=nbTileInventaireWidth*tileInventaireDimensionPixel;
+            ctx.canvas.height=nbTileInventaireHeight*tileInventaireDimensionPixel;
+            requestAnimationFrame(drawInventaire);
+        };
+        reader.onerror = function (evt) {
+            document.getElementById("fileContents").innerHTML = "error reading file";
+        };
+    }
+}
 function scanMap(tx, ty){
     var tuilePositionX=(tx-5)/tileDimensionPixel;
     var tuilePositionY=ty/tileDimensionPixel;
     var tuileXFloor=Math.floor(tuilePositionX);
     var tuileYFloor=Math.floor(tuilePositionY);
     var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
-    console.log(numTuile);
     return numTuile;
 }
-
+function scanInventaire(txInventaire, tyInventaire){
+    var tuileInventairePositionX=(txInventaire-5)/tileInventaireDimensionPixel;
+    var tuileInventairePositionY=tyInventaire/tileInventaireDimensionPixel;
+    var tuileInventaireXFloor=Math.floor(tuileInventairePositionX);
+    var tuileInventaireYFloor=Math.floor(tuileInventairePositionY);
+    var numTuileInventaire=tuileInventaireYFloor*nbTileWidth+tuileInventaireXFloor;
+    return numTuileInventaire;
+}
 function drawGame(){
     if(ctx==null){return;}
     for(var y=0; y<nbTileHeight;y++){
@@ -106,11 +138,56 @@ function drawGame(){
     }
     ctx.fillStyle="#ff0000";
 }
+function drawInventaire(){
+    if(ctx==null){return;}
+    for(var y=0; y<nbTileInventaireHeight;y++){
+        for(var x=0;x<nbTileInventaireWidth;x++){
+            switch(inventaireMap[((y*nbTileInventaireWidth)+x)]){
+            case 0://mur
+                ctx.fillStyle="#999999";
+                ctx.strokeStyle="#000000";
+                break;
+            case 1://marchable
+                ctx.fillStyle="#eeeeee";
+                ctx.strokeStyle="#000000";
+                break;
+            case 2://goblin
+                ctx.fillStyle="#00ff00";
+                ctx.strokeStyle="#000000";
+                break;
+            case 3://hero 1
+                ctx.fillStyle="#ff5622";
+                ctx.strokeStyle="#000000";
+                break;
+            case 4://hero 2
+                ctx.fillStyle="#ffc524";
+                ctx.strokeStyle="#000000";
+                break;
+            case 5://hero 3
+                ctx.fillStyle="#ff33d3";
+                ctx.strokeStyle="#000000";
+                break;
+            case 6://hero 4
+                ctx.fillStyle="#823528";
+                ctx.strokeStyle="#000000";
+                break;
+            case undefined:
+                ctx.fillStyle="#328cc1";
+                ctx.strokeStyle="328cc1";
+                break;
+            }
+            ctx.fillRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
+            ctx.strokeRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
+        }
+    }
+    ctx.fillStyle="#ff0000";
+}
+
 
 window.addEventListener("load", ()=>{
     document.getElementById("defaultOpen").click();
     canvas= document.getElementById("game");
-    ctx=canvas.getContext("2d");
+    canvasInventaire= document.getElementById("canvasInventaire");
     canvas.addEventListener("mousedown", startPositionChangementTextureMap);
     canvas.addEventListener("mouseup", endPositionChangementTextureMap);
     canvas.addEventListener("mousemove", draw);
@@ -118,8 +195,15 @@ window.addEventListener("load", ()=>{
     document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
 });
 
+//canvasInventaire.addEventListener("click", function(e){
+//    scanInventaire(e);
+//    couleur=6;
+    
+//});
+
+
 function startPositionChangementTextureMap(e){
-    changementTextureMap = true;
+    changementTextureMap=true;
     //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
     draw(e);
 }
@@ -148,8 +232,20 @@ function draw(e){
     var ty=e.clientY-BB.top;
     //fin du holy grail
     numTuile=scanMap(tx,ty);
-    gameMap[numTuile]=6;
+    gameMap[numTuile]=couleur;
     drawGame();
+}
+function analyseInventaire(e){
+    if(!changementTextureMap){
+        return;
+    }
+    //holy grail pour Canvas
+    var BBInventaire=canvas.getBoundingClientRect();
+    var txInventaire=e.clientX-BBInventaire.left;
+    var tyInventaire=e.clientY-BBInventaire.top;
+    //fin du holy grail
+    numTuileInventaire=scanInventaire(tx,ty);
+    couleur=inventaireMap[numTuileInventaire];
 }
 
 function setChoix(choix){
