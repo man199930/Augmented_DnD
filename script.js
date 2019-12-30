@@ -76,6 +76,9 @@ function loadInventaire(){
         var reader = new FileReader();
         reader.readAsText(file, "UTF-8");
         reader.onload = function (evt) {
+            if(JSON.parse(evt.target.result).className!="inventory"){
+                return;
+            }
             inventaireMap= JSON.parse(evt.target.result).inventaire;
             nbTileInventaireHeight=Math.ceil(inventaireMap.length/nbTileInventaireWidth);
             //A etudier afin de mieux comprendre (pk pas mettre ctx.canvasInventaire)
@@ -250,14 +253,18 @@ function draw(e){
         return;
     }
     //holy grail pour Canvas
+    
+    canvas=document.getElementById("game");
+    ctx=canvas.getContext("2d");
     var BB=canvas.getBoundingClientRect();
     var tx=e.clientX-BB.left;
     var ty=e.clientY-BB.top;
+    console.log("tx: "+tx);
+    console.log("ty: "+ty);
+    console.log("BBleft: "+BB.left+" BBtop: "+BB.top);
     //fin du holy grail
     numTuile=scanMap(tx,ty);
     gameMap[numTuile]=couleur;
-    canvas=document.getElementById("game");
-    ctx=canvas.getContext("2d");
     requestAnimationFrame(drawGame);
 }
 function scanMap(tx, ty){

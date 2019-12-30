@@ -1,5 +1,6 @@
 {
   "name": "Manu",
+  "className": "inventory",
   "inventaire": [
     0,
     1,
