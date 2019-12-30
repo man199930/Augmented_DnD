@@ -1,10 +1,29 @@
 <!DOCTYPE html><html lang="fr-ca"><head><title>DnD Map Creator</title><meta charset="utf-8"><style>body{
     background-color: #0B3C5D;
+    margin: 0;
 }
-h1{
-    color: #D9B310;
-}
+#titre{
+    position: absolute;
+    width: 275px;
+    height: 39px;
+    left: 7px;
+    top: 7px;
+    margin: 0;
 
+    font-family: Ubuntu;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 37px;
+
+    color: #D9B310;
+
+    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+#game{
+    padding-top: 80px;
+    padding-left: 7px;
+}
 canvas{
     display: inline;
 }
@@ -108,6 +127,10 @@ h3{
     padding: 6px 12px;
 }
 </style><script>var tileDimensionPixel;
+var tuilePositionX=0;
+var tuilePositionY=0;
+var ajustementSelonDeplacementX=0;
+var ajustementSelonDeplacementY=0;
 var nbTileWidth;
 var nbTileHeight;
 var tileInventaireDimensionPixel=100;
@@ -120,6 +143,7 @@ var inventaireMap=[];
 var canvas;
 var canvasInventaire;
 var changementTextureMap=false;
+var drawInitial=true;
 var btnWall;
 var btnFloor;
 var btnGoblin;
@@ -135,6 +159,7 @@ var imgSource='textures/';
 
 
 function creerMap(){
+    drawInitial=true;
     tileDimensionPixel=document.getElementById("tileDimensionPixel").value;
     nbTileWidth=document.getElementById("nbTileWidth").value;
     nbTileHeight=document.getElementById("nbTileHeight").value;
@@ -152,6 +177,7 @@ function creerMap(){
 
 
 function loadMap(){
+    drawInitial=true;
     ctx=canvas.getContext("2d");
     var file = document.getElementById("mapFile").files[0];
     if (file) {
@@ -180,6 +206,7 @@ function loadInventaire(){
         reader.onload = function (evt) {
             inventaireMap= JSON.parse(evt.target.result).inventaire;
             nbTileInventaireHeight=Math.ceil(inventaireMap.length/nbTileInventaireWidth);
+            //A etudier afin de mieux comprendre (pk pas mettre ctx.canvasInventaire)
             ctx.canvas.width=nbTileInventaireWidth*tileInventaireDimensionPixel;
             ctx.canvas.height=nbTileInventaireHeight*tileInventaireDimensionPixel;
             requestAnimationFrame(drawInventaire);
@@ -188,22 +215,6 @@ function loadInventaire(){
             document.getElementById("fileContents").innerHTML = "error reading file";
         };
     }
-}
-function scanMap(tx, ty){
-    var tuilePositionX=(tx-5)/tileDimensionPixel;
-    var tuilePositionY=ty/tileDimensionPixel;
-    var tuileXFloor=Math.floor(tuilePositionX);
-    var tuileYFloor=Math.floor(tuilePositionY);
-    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
-    return numTuile;
-}
-function scanInventaire(txInventaire, tyInventaire){
-    var tuileInventairePositionX=(txInventaire-5)/tileInventaireDimensionPixel;
-    var tuileInventairePositionY=tyInventaire/tileInventaireDimensionPixel;
-    var tuileInventaireXFloor=Math.floor(tuileInventairePositionX);
-    var tuileInventaireYFloor=Math.floor(tuileInventairePositionY);
-    var numTuileInventaire=tuileInventaireYFloor*nbTileWidth+tuileInventaireXFloor;
-    return numTuileInventaire;
 }
 function drawGame(){
     if(ctx==null){return;}
@@ -245,13 +256,12 @@ function drawGame(){
             ctx.globalAlpha=1;
         }
     }
-    ctx.fillStyle="#ff0000";
+    drawInitial=false;
 }
 function drawInventaire(){
     if(ctx==null){return;}
     for(var y=0; y<nbTileInventaireHeight;y++){
         for(var x=0;x<nbTileInventaireWidth;x++){
-            console.log(inventaireMap[((y*nbTileInventaireWidth)+x)]);
             switch(inventaireMap[((y*nbTileInventaireWidth)+x)]){
             case 0://mur
                 ctx.fillStyle="#999999";
@@ -283,82 +293,16 @@ function drawInventaire(){
                 break;
             case undefined:
                 ctx.fillStyle="#328cc1";
-                ctx.strokeStyle="328cc1";
+                ctx.strokeStyle="#328cc1";
                 break;
             }
             ctx.fillRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
             ctx.strokeRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
         }
     }
-    ctx.fillStyle="#ff0000";
 }
-
-
-window.addEventListener("load", ()=>{
-    document.getElementById("defaultOpen").click();
-    canvas= document.getElementById("game");
-    canvasInventaire= document.getElementById("canvasInventaire");
-    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
-    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
-    canvas.addEventListener("mousemove", draw);
-    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
-    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
-});
-
-//canvasInventaire.addEventListener("click", function(e){
-//    scanInventaire(e);
-//    couleur=6;
-    
-//});
-
-
-function startPositionChangementTextureMap(e){
-    changementTextureMap=true;
-    //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
-    draw(e);
-}
-function endPositionChangementTextureMap(){
-    changementTextureMap=false;
-    ctx.beginPath();
-}
-function startChangemenfPasEncoreDansCanvas(){
-    changementTextureMap=true;
-}
-function endChangemenfPasEncoreDansCanvas(){
-    changementTextureMap=false;
-}
-function tuileSelectionne(e){
-    if(!changementTextureMap){
-        return;
-    }
-}
-function draw(e){
-    if(!changementTextureMap){
-        return;
-    }
-    //holy grail pour Canvas
-    var BB=canvas.getBoundingClientRect();
-    var tx=e.clientX-BB.left;
-    var ty=e.clientY-BB.top;
-    //fin du holy grail
-    numTuile=scanMap(tx,ty);
-    gameMap[numTuile]=couleur;
-    drawGame();
-}
-function analyseInventaire(e){
-    if(!changementTextureMap){
-        return;
-    }
-    //holy grail pour Canvas
-    var BBInventaire=canvas.getBoundingClientRect();
-    var txInventaire=e.clientX-BBInventaire.left;
-    var tyInventaire=e.clientY-BBInventaire.top;
-    //fin du holy grail
-    numTuileInventaire=scanInventaire(tx,ty);
-    couleur=inventaireMap[numTuileInventaire];
-}
-
-function setChoix(choix){
+function setChoix(choix,x,y){
+    console.log(choix);
     switch(choix){
     case 0://mur
         couleur=0;
@@ -386,9 +330,88 @@ function setChoix(choix){
         break;
     case 6://hero 4
         couleur=6;
-        ctx.strokeStyle="#29fdff";
+        ctx.strokeStyle="#abcdef";
+        break;
+    default:
+        couleur=null;
         break;
     }
+    ctx.strokeRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
+}
+window.addEventListener("load", ()=>{
+    document.getElementById("defaultOpen").click();
+    canvas= document.getElementById("game");
+    canvasInventaire= document.getElementById("canvasInventaire");
+    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
+    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
+    canvas.addEventListener("mousemove", draw);
+    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
+    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
+    canvasInventaire.addEventListener("click", function(e){
+        analyseInventaire(e);
+    });
+});
+function startPositionChangementTextureMap(e){
+    changementTextureMap=true;
+    //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
+    if(ctx!=null && drawInitial && couleur!=null){
+        draw(e);
+    }
+}
+function endPositionChangementTextureMap(){
+    changementTextureMap=false;
+    ctx.beginPath();
+}
+function startChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=true;
+}
+function endChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=false;
+}
+function tuileSelectionne(e){
+    if(!changementTextureMap){
+        return;
+    }
+}
+function draw(e){
+    if(!changementTextureMap || canvas==null){
+        return;
+    }
+    //holy grail pour Canvas
+    var BB=canvas.getBoundingClientRect();
+    var tx=e.clientX-BB.left;
+    var ty=e.clientY-BB.top;
+    //fin du holy grail
+    numTuile=scanMap(tx,ty);
+    gameMap[numTuile]=couleur;
+    canvas=document.getElementById("game");
+    ctx=canvas.getContext("2d");
+    requestAnimationFrame(drawGame);
+}
+function scanMap(tx, ty){
+    tuilePositionX=tx/tileDimensionPixel;
+    tuilePositionY=ty/tileDimensionPixel;
+    var tuileXFloor=Math.floor(tuilePositionX);
+    var tuileYFloor=Math.floor(tuilePositionY);
+    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
+    return numTuile;
+}
+function analyseInventaire(e){
+    //holy grail pour Canvas
+    var BBInventaire=canvasInventaire.getBoundingClientRect();
+    var txInventaire=e.clientX-BBInventaire.left;
+    var tyInventaire=e.clientY-BBInventaire.top;
+    //fin du holy grail
+    numTuileInventaire=scanInventaire(txInventaire,tyInventaire);
+    setChoix(numTuileInventaire);
+}
+function scanInventaire(txInventaire, tyInventaire){
+    var tuileInventairePositionX=txInventaire/tileInventaireDimensionPixel;
+    var tuileInventairePositionY=tyInventaire/tileInventaireDimensionPixel;
+    var tuileInventaireXFloor=Math.floor(tuileInventairePositionX);
+    var tuileInventaireYFloor=Math.floor(tuileInventairePositionY);
+    var numTuileInventaire=tuileInventaireYFloor*nbTileInventaireWidth+tuileInventaireXFloor;
+    return numTuileInventaire;
 }
 function openNav() {
     document.getElementById("mySidebar").style.width = "600px";
@@ -417,4 +440,4 @@ function openTab(evt, cityName) {
     document.getElementById(cityName).style.display = "block";
     evt.currentTarget.className += " active";
 } 
-</script></head><body><header></header><nav></nav><main><button class="openbtn" onClick="openNav()">Open</button><div class="sidebar" id="mySidebar"><div class="tab"><button class="tablinks" id="defaultOpen" onClick="openTab(event, 'createOrLoad')">Create or Load</button><button class="tablinks" onClick="openTab(event, 'textures')">Textures</button><button id="closeBtn" onclick="closeNav()">Close</button></div><div class="tabcontent" id="createOrLoad"><div id="mapCreator"><div id="mapLoader"><h2>Load a map (if you want to modify an existing one)</h2><input type="file" onchange="loadMap()" id="mapFile"></div><div id="mapDimensions"><h2>Map Dimensions</h2><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><br><br><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"></div><br></div></div><div class="tabcontent" id="textures"><div id="mapCreatorItems"><h2>Modify it</h2><p>Load a texture pack (to choose your textures or if you want to modify an existing one)</p><input type="file" onchange="loadInventaire()" id="inventaireFile"><canvas id="canvasInventaire" width="500" height="500"></canvas></div></div></div><h1>DnD Map Creator</h1><div id="map"><canvas id="game" width="1000" height="600"></canvas></div></main></body></html>
+</script></head><body><header></header><nav></nav><main><button class="openbtn" onClick="openNav()">Open</button><div class="sidebar" id="mySidebar"><div class="tab"><button class="tablinks" id="defaultOpen" onClick="openTab(event, 'createOrLoad')">Create or Load</button><button class="tablinks" onClick="openTab(event, 'textures')">Textures</button><button id="closeBtn" onclick="closeNav()">Close</button></div><div class="tabcontent" id="createOrLoad"><div id="mapCreator"><div id="mapLoader"><h2>Load a map (if you want to modify an existing one)</h2><input type="file" onchange="loadMap()" id="mapFile"></div><div id="mapDimensions"><h2>Map Dimensions</h2><p>tileDimensionPixel</p><input type="text" id="tileDimensionPixel"><p>nbTileWidth</p><input type="text" id="nbTileWidth"><p>nbTileHeight</p><input type="text" id="nbTileHeight"><br><br><input type="submit" name="Submit" id="submit" value="Submit" onClick="creerMap()"></div><br></div></div><div class="tabcontent" id="textures"><div id="mapCreatorItems"><h2>Modify it</h2><p>Load a texture pack (to choose your textures or if you want to modify an existing one)</p><input type="file" onchange="loadInventaire()" id="inventaireFile"><canvas id="canvasInventaire" width="500" height="500"></canvas></div></div></div><h1 id="titre">DnD Map Creator</h1><div id="map"><canvas id="game" width="1000" height="600"></canvas></div></main></body></html>

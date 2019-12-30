@@ -1,4 +1,8 @@
 var tileDimensionPixel;
+var tuilePositionX=0;
+var tuilePositionY=0;
+var ajustementSelonDeplacementX=0;
+var ajustementSelonDeplacementY=0;
 var nbTileWidth;
 var nbTileHeight;
 var tileInventaireDimensionPixel=100;
@@ -11,6 +15,7 @@ var inventaireMap=[];
 var canvas;
 var canvasInventaire;
 var changementTextureMap=false;
+var drawInitial=true;
 var btnWall;
 var btnFloor;
 var btnGoblin;
@@ -26,6 +31,7 @@ var imgSource='textures/';
 
 
 function creerMap(){
+    drawInitial=true;
     tileDimensionPixel=document.getElementById("tileDimensionPixel").value;
     nbTileWidth=document.getElementById("nbTileWidth").value;
     nbTileHeight=document.getElementById("nbTileHeight").value;
@@ -43,6 +49,7 @@ function creerMap(){
 
 
 function loadMap(){
+    drawInitial=true;
     ctx=canvas.getContext("2d");
     var file = document.getElementById("mapFile").files[0];
     if (file) {
@@ -71,6 +78,7 @@ function loadInventaire(){
         reader.onload = function (evt) {
             inventaireMap= JSON.parse(evt.target.result).inventaire;
             nbTileInventaireHeight=Math.ceil(inventaireMap.length/nbTileInventaireWidth);
+            //A etudier afin de mieux comprendre (pk pas mettre ctx.canvasInventaire)
             ctx.canvas.width=nbTileInventaireWidth*tileInventaireDimensionPixel;
             ctx.canvas.height=nbTileInventaireHeight*tileInventaireDimensionPixel;
             requestAnimationFrame(drawInventaire);
@@ -79,22 +87,6 @@ function loadInventaire(){
             document.getElementById("fileContents").innerHTML = "error reading file";
         };
     }
-}
-function scanMap(tx, ty){
-    var tuilePositionX=(tx-5)/tileDimensionPixel;
-    var tuilePositionY=ty/tileDimensionPixel;
-    var tuileXFloor=Math.floor(tuilePositionX);
-    var tuileYFloor=Math.floor(tuilePositionY);
-    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
-    return numTuile;
-}
-function scanInventaire(txInventaire, tyInventaire){
-    var tuileInventairePositionX=(txInventaire-5)/tileInventaireDimensionPixel;
-    var tuileInventairePositionY=tyInventaire/tileInventaireDimensionPixel;
-    var tuileInventaireXFloor=Math.floor(tuileInventairePositionX);
-    var tuileInventaireYFloor=Math.floor(tuileInventairePositionY);
-    var numTuileInventaire=tuileInventaireYFloor*nbTileWidth+tuileInventaireXFloor;
-    return numTuileInventaire;
 }
 function drawGame(){
     if(ctx==null){return;}
@@ -136,7 +128,7 @@ function drawGame(){
             ctx.globalAlpha=1;
         }
     }
-    ctx.fillStyle="#ff0000";
+    drawInitial=false;
 }
 function drawInventaire(){
     if(ctx==null){return;}
@@ -173,82 +165,16 @@ function drawInventaire(){
                 break;
             case undefined:
                 ctx.fillStyle="#328cc1";
-                ctx.strokeStyle="328cc1";
+                ctx.strokeStyle="#328cc1";
                 break;
             }
             ctx.fillRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
             ctx.strokeRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
         }
     }
-    ctx.fillStyle="#ff0000";
 }
-
-
-window.addEventListener("load", ()=>{
-    document.getElementById("defaultOpen").click();
-    canvas= document.getElementById("game");
-    canvasInventaire= document.getElementById("canvasInventaire");
-    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
-    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
-    canvas.addEventListener("mousemove", draw);
-    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
-    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
-});
-
-//canvasInventaire.addEventListener("click", function(e){
-//    scanInventaire(e);
-//    couleur=6;
-    
-//});
-
-
-function startPositionChangementTextureMap(e){
-    changementTextureMap=true;
-    //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
-    draw(e);
-}
-function endPositionChangementTextureMap(){
-    changementTextureMap=false;
-    ctx.beginPath();
-}
-function startChangemenfPasEncoreDansCanvas(){
-    changementTextureMap=true;
-}
-function endChangemenfPasEncoreDansCanvas(){
-    changementTextureMap=false;
-}
-function tuileSelectionne(e){
-    if(!changementTextureMap){
-        return;
-    }
-}
-function draw(e){
-    if(!changementTextureMap){
-        return;
-    }
-    //holy grail pour Canvas
-    var BB=canvas.getBoundingClientRect();
-    var tx=e.clientX-BB.left;
-    var ty=e.clientY-BB.top;
-    //fin du holy grail
-    numTuile=scanMap(tx,ty);
-    gameMap[numTuile]=couleur;
-    drawGame();
-}
-function analyseInventaire(e){
-    if(!changementTextureMap){
-        return;
-    }
-    //holy grail pour Canvas
-    var BBInventaire=canvas.getBoundingClientRect();
-    var txInventaire=e.clientX-BBInventaire.left;
-    var tyInventaire=e.clientY-BBInventaire.top;
-    //fin du holy grail
-    numTuileInventaire=scanInventaire(tx,ty);
-    couleur=inventaireMap[numTuileInventaire];
-}
-
-function setChoix(choix){
+function setChoix(choix,x,y){
+    console.log(choix);
     switch(choix){
     case 0://mur
         couleur=0;
@@ -276,9 +202,88 @@ function setChoix(choix){
         break;
     case 6://hero 4
         couleur=6;
-        ctx.strokeStyle="#29fdff";
+        ctx.strokeStyle="#abcdef";
+        break;
+    default:
+        couleur=null;
         break;
     }
+    ctx.strokeRect(x*tileInventaireDimensionPixel, y*tileInventaireDimensionPixel, tileInventaireDimensionPixel, tileInventaireDimensionPixel);
+}
+window.addEventListener("load", ()=>{
+    document.getElementById("defaultOpen").click();
+    canvas= document.getElementById("game");
+    canvasInventaire= document.getElementById("canvasInventaire");
+    canvas.addEventListener("mousedown", startPositionChangementTextureMap);
+    canvas.addEventListener("mouseup", endPositionChangementTextureMap);
+    canvas.addEventListener("mousemove", draw);
+    document.addEventListener("mousedown", startChangemenfPasEncoreDansCanvas);
+    document.addEventListener("mouseup", endChangemenfPasEncoreDansCanvas);
+    canvasInventaire.addEventListener("click", function(e){
+        analyseInventaire(e);
+    });
+});
+function startPositionChangementTextureMap(e){
+    changementTextureMap=true;
+    //serait supposer capable de dessiner a un seul clic mais ne fonctionne pas
+    if(ctx!=null && drawInitial && couleur!=null){
+        draw(e);
+    }
+}
+function endPositionChangementTextureMap(){
+    changementTextureMap=false;
+    ctx.beginPath();
+}
+function startChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=true;
+}
+function endChangemenfPasEncoreDansCanvas(){
+    changementTextureMap=false;
+}
+function tuileSelectionne(e){
+    if(!changementTextureMap){
+        return;
+    }
+}
+function draw(e){
+    if(!changementTextureMap || canvas==null){
+        return;
+    }
+    //holy grail pour Canvas
+    var BB=canvas.getBoundingClientRect();
+    var tx=e.clientX-BB.left;
+    var ty=e.clientY-BB.top;
+    //fin du holy grail
+    numTuile=scanMap(tx,ty);
+    gameMap[numTuile]=couleur;
+    canvas=document.getElementById("game");
+    ctx=canvas.getContext("2d");
+    requestAnimationFrame(drawGame);
+}
+function scanMap(tx, ty){
+    tuilePositionX=tx/tileDimensionPixel;
+    tuilePositionY=ty/tileDimensionPixel;
+    var tuileXFloor=Math.floor(tuilePositionX);
+    var tuileYFloor=Math.floor(tuilePositionY);
+    var numTuile=tuileYFloor*nbTileWidth+tuileXFloor;
+    return numTuile;
+}
+function analyseInventaire(e){
+    //holy grail pour Canvas
+    var BBInventaire=canvasInventaire.getBoundingClientRect();
+    var txInventaire=e.clientX-BBInventaire.left;
+    var tyInventaire=e.clientY-BBInventaire.top;
+    //fin du holy grail
+    numTuileInventaire=scanInventaire(txInventaire,tyInventaire);
+    setChoix(numTuileInventaire);
+}
+function scanInventaire(txInventaire, tyInventaire){
+    var tuileInventairePositionX=txInventaire/tileInventaireDimensionPixel;
+    var tuileInventairePositionY=tyInventaire/tileInventaireDimensionPixel;
+    var tuileInventaireXFloor=Math.floor(tuileInventairePositionX);
+    var tuileInventaireYFloor=Math.floor(tuileInventairePositionY);
+    var numTuileInventaire=tuileInventaireYFloor*nbTileInventaireWidth+tuileInventaireXFloor;
+    return numTuileInventaire;
 }
 function openNav() {
     document.getElementById("mySidebar").style.width = "600px";
